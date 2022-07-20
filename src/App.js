@@ -1,18 +1,38 @@
 import style from './App.module.css';
 import Wrapper from './Components/Wrapper/Wrapper';
 import GridCell from './Components/GridCell/GridCell';
-import {useState, useEffect} from 'react';
+import {useState, useReducer} from 'react';
 import Selector from './Components/Selector';
 
+const reducerFunction = (state, action) =>{
+  let newState = {};
+  switch(action.type){
+    case 'setDimensions':
+      newState = {...state, dimensions: action.value}
+      break
+    case 'holdDimensions':
+      newState = {...state, holdDimensions: action.value};
+      break
+    case 'positionData':
+      newState = {...state, positionData: action.value};
+      break
+    case 'isClicked':
+      newState = {...state, isClicked: action.value};
+      break
+    default:
+      throw new Error('invalid action');
+  }
+  return newState;
+}
 function App() {
-  //holds the state for the dimensions of our selector
-  const [dimensions, setDimensions] = useState({x:0, y:0});
-  //holds the x, y values used for setting the starting position of our selector
-  const [positionData, setPositionData] = useState({x: 0, y: 0});
-  //holds the initial x, y vaalue of our data. this is used to compute the selector width and height
-  const [holdDimensions, setHoldDimensions] = useState({});
-  //checks for a mouse click event
-  const [isClicked, setIsClicked] = useState(false)
+  //adding a reducer to handle multiple states
+  const initialAppState = {
+    dimensions: {x: 1, y: 1}, 
+    positionData: {x: 0, y: 0},
+    holdDimensions: {},
+    isClicked: false,
+  }
+  const [appState, appDispatch] = useReducer(reducerFunction, initialAppState);
   //stores the selector boundin g client rect value
   const [selectorRect, setSelectorRect] = useState({});
   //holds the wrapper  bounding client rect value
@@ -22,22 +42,36 @@ function App() {
 
 
   const setSelectorDimensions = (clientx, clienty) =>{
-    if (!isClicked){
-      // if the user is clikcing for the first time
-      //the selector box should be a 1px by 1px square box
-      setDimensions({x: 1, y: 1});
-      //the selector box should start at the place where the mouse was clicked
-      setPositionData({x: clientx, y: clienty});
-      //hold the initial x, y values of the mouse in order to compute the width and height of the selector
-      setHoldDimensions({x: clientx, y: clienty});
+    if (!appState.isClicked){
+      appDispatch(
+        {type: 'setDimensions',
+        name: 'dimensions',
+        value: {x: 1, y: 1}}
+        );
+      appDispatch(
+        {type: 'positionData',
+        name: 'positionData',
+        value: {x: clientx, y: clienty}});
+      appDispatch({
+        type: 'holdDimensions',
+        name: 'holdDimensions',
+        value: {x: clientx, y: clienty}
+      })
+      appDispatch({
+        type: 'isClicked',
+        value: true,
+      })
+      console.log(appState)
       return
     }
-    if (clientx < holdDimensions.x){
-      // setHoldDimensions({x: clientx, y: clienty})
-      setIsClicked(false);
-    }
-    setDimensions({x: clientx-holdDimensions.x, y: clienty-holdDimensions.y})
-    // setIsClicked(false);
+    appDispatch({
+      type: 'setDimensions',
+      name: 'dimensions',
+      value: {
+        x: clientx-appState.holdDimensions.x, 
+        y: clienty-appState.holdDimensions.y},
+    })
+    console.log(appState)
   }
   function updateWrapperRect(data){
     setWrapperRect(data);
@@ -50,15 +84,14 @@ function App() {
   }
   return (
     <div className={style.app}>
-      <Wrapper 
-      onMouseRegistered={(data)=>{setIsClicked(data)}} 
+      <Wrapper
       cordinates={setSelectorDimensions}
       updateDimensions={updateWrapperRect}>
         <Selector 
-        width={dimensions.x} 
-        height={dimensions.y}
-        top={positionData.y}
-        left={positionData.x}
+        width={appState.dimensions.x} 
+        height={appState.dimensions.y}
+        top={appState.positionData.y}
+        left={appState.positionData.x}
         updateDimensions={updateSelectorRect}
         wrapperRect={wrapperRect}
         passBorderObj={recieveBorderObj}></Selector>
@@ -69,7 +102,7 @@ function App() {
             borderObj={borderObj} 
             key={`${index}`}
             wrapperRect={wrapperRect}
-            isClicked={isClicked}></GridCell>
+            isClicked={appState.isClicked}></GridCell>
           })}
         </div>
       </Wrapper>

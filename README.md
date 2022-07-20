@@ -1,1 +1,1 @@
-# gird-selection
+# grid-selection

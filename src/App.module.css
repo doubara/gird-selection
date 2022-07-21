@@ -1,0 +1,10 @@
+.grid{
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  border: 1px solid green;
+  max-width: 800px;
+  height: auto;
+  margin-inline: auto;
+  margin-top: 4rem;
+  height: 80vh;
+}

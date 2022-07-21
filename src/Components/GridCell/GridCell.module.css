@@ -1,0 +1,6 @@
+.grid__cell{
+    border: 1px solid black;
+}
+.highlight{
+    background-color: rgb(45, 152, 223);
+}

@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# grid-selection
-=======
 # A simple item selection App
 
 This App selects a group of cells by clicking on areas that needs to be selected.
@@ -35,4 +32,3 @@ This App selects a group of cells by clicking on areas that needs to be selected
 
 Thanks to [@Dhevine_0X](https://www.twitter.com/Dhevine_0X)
 for reviews and readme update on this project.
->>>>>>> master
